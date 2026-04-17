@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     libpng-dev \
-    libjpeg-dev \
+    libjpeg62-turbo-dev \
     libfreetype6-dev \
     libzip-dev \
     libxml2-dev \
