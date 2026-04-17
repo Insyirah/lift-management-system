@@ -9,24 +9,25 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Stage 2: Production image
-FROM php:8.3-fpm-alpine
+# Stage 2: Production image (Debian-based for better compatibility)
+FROM php:8.3-fpm
 
 # Install system dependencies
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     nginx \
     curl \
     zip \
     unzip \
     git \
     libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     libzip-dev \
     libxml2-dev \
-    postgresql-dev \
-    oniguruma-dev \
-    supervisor
+    libpq-dev \
+    supervisor \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -40,8 +41,6 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         bcmath \
         gd \
         zip \
-        xml \
-        dom \
         opcache
 
 # Install Composer
@@ -56,15 +55,13 @@ COPY . .
 COPY --from=frontend /app/public/build ./public/build
 
 # Install PHP dependencies
-# --no-scripts skips post-autoload-dump (php artisan package:discover)
-# which fails without a .env file at build time
 RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
     --no-scripts
 
-# Run package discovery manually now that vendor exists
+# Run package discovery after vendor is ready
 RUN php artisan package:discover --ansi 2>/dev/null || true
 
 # Set permissions
