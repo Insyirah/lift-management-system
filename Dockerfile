@@ -23,6 +23,7 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     libzip-dev \
+    libxml2-dev \
     postgresql-dev \
     oniguruma-dev \
     supervisor
@@ -39,6 +40,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         bcmath \
         gd \
         zip \
+        xml \
+        dom \
         opcache
 
 # Install Composer
@@ -52,8 +55,17 @@ COPY . .
 # Copy built frontend assets from stage 1
 COPY --from=frontend /app/public/build ./public/build
 
-# Install PHP dependencies (no dev, optimized autoloader)
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Install PHP dependencies
+# --no-scripts skips post-autoload-dump (php artisan package:discover)
+# which fails without a .env file at build time
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-scripts
+
+# Run package discovery manually now that vendor exists
+RUN php artisan package:discover --ansi 2>/dev/null || true
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
