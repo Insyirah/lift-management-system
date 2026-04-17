@@ -14,10 +14,7 @@ services:
       - key: APP_KEY
         sync: false
       - key: APP_URL
-        fromService:
-          name: lift-inspection-system
-          type: web
-          property: host
+        value: https://lift-inspection-system.onrender.com
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
