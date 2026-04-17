@@ -241,6 +241,36 @@ lift-inspection-system/
 
 ---
 
+## Deployment (Render)
+
+The project includes Docker-based deployment config for [Render](https://render.com) (free tier).
+
+### Free tier notes
+- Web service **sleeps after 15 min** of inactivity (slow first load ~30-60s)
+- Free PostgreSQL database expires after **90 days**
+- No credit card required
+
+### Steps
+
+1. Push your code to a GitHub repository.
+
+2. Go to [render.com](https://render.com) and create a free account.
+
+3. Click **New > Blueprint** and connect your GitHub repo. Render will detect `render.yaml` and auto-configure:
+   - A web service (Docker, free plan)
+   - A PostgreSQL database (free plan)
+   - All environment variables (including `APP_KEY` auto-generated)
+
+4. Click **Apply** and wait for the build to finish (~5 minutes on first deploy).
+
+5. Your app will be live at `https://lift-inspection-system.onrender.com` (or similar).
+
+### What happens on deploy
+- Docker builds the image (installs PHP + Node dependencies, builds Vue assets)
+- On container start: migrations run automatically, config/routes/views are cached
+
+---
+
 ## Running Tests
 
 ```bash
