@@ -12,34 +12,27 @@ RUN npm run build
 # Stage 2: Production image (Debian-based for better compatibility)
 FROM php:8.3-fpm
 
-# Install system dependencies
+# Install system dependencies (no PHP lib deps needed — handled by install-php-extensions)
 RUN apt-get update && apt-get install -y \
     nginx \
     curl \
     zip \
     unzip \
     git \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    libxml2-dev \
-    libpq-dev \
     supervisor \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
-        pdo \
+# Use mlocati installer — resolves system deps and configure flags automatically
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN install-php-extensions \
+        gd \
         pdo_pgsql \
-        pgsql \
         mbstring \
         exif \
         pcntl \
         bcmath \
-        gd \
         zip \
         opcache
 
