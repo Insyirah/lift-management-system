@@ -16,6 +16,11 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Only seed if the database is empty (safe for container restarts)
+        if (User::count() > 0) {
+            return;
+        }
+
         // Super Admin
         User::create([
             'name'     => 'Super Admin',
@@ -46,7 +51,7 @@ class DatabaseSeeder extends Seeder
         // Inspector user
         $inspector = User::create([
             'name'        => 'Nuzul Arzan',
-            'email'       => 'inspector@test.com',
+            'email'       => 'inspector@elevasafe.com.my',
             'password'    => Hash::make('password'),
             'role'        => 'inspector',
             'company_id'  => $company->id,

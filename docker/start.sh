@@ -21,6 +21,9 @@ until php /var/www/html/artisan migrate --force 2>&1; do
     sleep 5
 done
 
+# Seed database with initial data (seeder skips if data already exists)
+php /var/www/html/artisan db:seed --force
+
 # Cache config/routes/views for production performance
 php /var/www/html/artisan config:cache
 php /var/www/html/artisan route:cache
