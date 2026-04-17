@@ -34,7 +34,9 @@ RUN install-php-extensions \
         pcntl \
         bcmath \
         zip \
-        opcache
+        opcache \
+        fileinfo \
+        iconv
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -52,7 +54,8 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
-    --no-scripts
+    --no-scripts \
+    --ignore-platform-reqs
 
 # Run package discovery after vendor is ready
 RUN php artisan package:discover --ansi 2>/dev/null || true
